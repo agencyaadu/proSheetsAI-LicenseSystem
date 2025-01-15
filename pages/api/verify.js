@@ -29,9 +29,9 @@ export default function handler(req, res) {
         const expectedSignature = hmac.digest('hex');
 
         if (license === expectedSignature) {
-            return res.status(200).json({ message: 'License is valid' });
+            return res.status(200).json({ message: 'License is valid' , status: true });
         } else {
-            return res.status(400).json({ message: 'License is invalid' });
+            return res.status(400).json({ message: 'License is invalid' , status: false });
         }
 
     } else {
