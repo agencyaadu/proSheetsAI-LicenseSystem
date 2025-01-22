@@ -20,7 +20,7 @@ const webhookHandler = async (req, res) => {
     }
 
     // Endpoint Secret
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || "whsec_u55RdgXrAyigOxFBYIISVWP43AY8BCVe";
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
     
     // Declaring the Event
     let event;
@@ -84,21 +84,23 @@ const webhookHandler = async (req, res) => {
                     postalCode: checkOutSession.customer_details.address.postal_code,
                     paymentIntent: checkOutSession.payment_intent,
                 }
-                console.log("Purchased Items: ", Order);
-    
-                const licenseResponse = await fetch(`/api/license`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({email: Order.email}),
+                
+                const baseURL = process.env.BASE_URL || "http://localhost:3000"
+                
+                const licenseResponse = await fetch(`${baseURL}/api/license`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({email: Order.email}),
                 });
-    
-                if (!licenseResponse.ok) {
-                  Order.licensekey = "Sent"
+                
+                if (licenseResponse.ok) {
+                    Order.licensekey = "Sent"
                 } else {
-                  Order.licensekey = "Not Sent"
+                    Order.licensekey = "Not Sent"
                 }
+                console.log("Purchased Items: ", Order);
                 
                 try {
                     // Send the order data to the appscript
