@@ -1,11 +1,16 @@
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
 const secretKey = process.env.LICENSE_SECRET_KEY;
+const SMTPUser = process.env.SMTP_USER || "jv@aadu.agency";
+const SMTPPass = process.env.SMTP_PASS || "uhxf jxfx jpqe fino";
+const SMTPHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const SMTPPort = process.env.SMTP_PORT || 587;
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         
@@ -27,10 +32,47 @@ export default function handler(req, res) {
 
         const signature = hmac.digest('hex');
 
-        return res.status(200).json({
-            license: signature,
-            data: licenseData,
-        });
+        const transporter = nodemailer.createTransport({
+            host: SMTPHost,
+            port: SMTPPort,
+            secure: SMTPPort === 465,
+            auth: {
+                user: SMTPUser,
+                pass: SMTPPass
+            }
+        })
+
+        const mailOptions = {
+            from: "jv@aadu.agency",
+            to: email,
+            subject: "proSheetsAI - License Key",
+            html: `
+                <p>Hi there,</p>
+                <p>Thank you for purchasing <strong>proSheetsAI</strong>! We’re excited to have you on board and can’t wait for you to experience the full power of proSheetsAI.</p>
+                <p><strong>Here’s your license key:</strong></p>
+                <pre style="background: #f4f4f4; padding: 10px; border-radius: 5px;">${signature}</pre>
+                <p>To activate your license, enter the above key in the proSheetsAI application.</p>
+                <p>If you have any questions or run into any issues, don’t hesitate to contact our support team at <a href="mailto:support@proSheetsAI.com">support@proSheetsAI.com</a>.</p>
+                <p>Thanks again for choosing proSheetsAI!</p>
+                <p>Best regards,</p>
+                <p><strong>agencyAadu</strong></p>
+            `, // HTML body
+        };
+
+        try {
+
+            await transporter.sendMail(mailOptions);
+
+            return res.status(200).json({
+                message: "License Generated and Sent Successfully",
+                license: signature,
+                data: licenseData,
+            });
+            
+        } catch (error) {
+            console.error("Error sending Email:", error);
+            return res.status(500).json({message: 'Failed to send email', error: error.message})
+        }
 
     } else {
         res.setHeader('Allow', ['POST']);
