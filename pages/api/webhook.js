@@ -86,6 +86,7 @@ const webhookHandler = async (req, res) => {
                     paymentIntent: checkOutSession.payment_intent,
                 }
                 
+<<<<<<< HEAD
                 const baseURL = process.env.BASE_URL || "http://localhost:3000" 
 
                 // Authorization Setup for /api/license endpoint
@@ -95,13 +96,19 @@ const webhookHandler = async (req, res) => {
                 const signature = crypto.createHmac("sha256", secretKey).update(payload).digest("hex");
 
 
+=======
+                const baseURL = process.env.BASE_URL || "http://localhost:3000"
+>>>>>>> 98d3314ba1d3c838cca4b47f34fb2622ffbff43b
                 
                 const licenseResponse = await fetch(`${baseURL}/api/license`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+<<<<<<< HEAD
                         "x-signature": signature,
                         "x-timestamp": timestamp,
+=======
+>>>>>>> 98d3314ba1d3c838cca4b47f34fb2622ffbff43b
                     },
                     body: JSON.stringify({email: Order.email}),
                 });
