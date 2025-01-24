@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import Stripe from "stripe";
 import bodyParser from "body-parser";
 
@@ -74,7 +75,7 @@ const webhookHandler = async (req, res) => {
                     totalPrice: purchasedItems.amount_total / 100,
                     currency: purchasedItems.currency,
                     customerName: checkOutSession.customer_details.name,
-                    email: checkOutSession.customer_details.email,
+                    email: "jv@aadu.agency" || checkOutSession.customer_details.email,
                     phone: checkOutSession.customer_details.phone,
                     line1: checkOutSession.customer_details.address.line1,
                     line2: checkOutSession.customer_details.address.line2,
@@ -85,12 +86,22 @@ const webhookHandler = async (req, res) => {
                     paymentIntent: checkOutSession.payment_intent,
                 }
                 
-                const baseURL = process.env.BASE_URL || "http://localhost:3000"
+                const baseURL = process.env.BASE_URL || "http://localhost:3000" 
+
+                // Authorization Setup for /api/license endpoint
+                const secretKey = process.env.LICENSE_SECRET_KEY;
+                const timestamp = Date.now();
+                const payload = `${timestamp}`
+                const signature = crypto.createHmac("sha256", secretKey).update(payload).digest("hex");
+
+
                 
                 const licenseResponse = await fetch(`${baseURL}/api/license`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "x-signature": signature,
+                        "x-timestamp": timestamp,
                     },
                     body: JSON.stringify({email: Order.email}),
                 });
