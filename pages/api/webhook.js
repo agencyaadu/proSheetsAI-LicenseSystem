@@ -75,7 +75,7 @@ const webhookHandler = async (req, res) => {
                     totalPrice: purchasedItems.amount_total / 100,
                     currency: purchasedItems.currency,
                     customerName: checkOutSession.customer_details.name,
-                    email: "jv@aadu.agency" || checkOutSession.customer_details.email,
+                    email: checkOutSession.customer_details.email,
                     phone: checkOutSession.customer_details.phone,
                     line1: checkOutSession.customer_details.address.line1,
                     line2: checkOutSession.customer_details.address.line2,
@@ -86,7 +86,6 @@ const webhookHandler = async (req, res) => {
                     paymentIntent: checkOutSession.payment_intent,
                 }
                 
-<<<<<<< HEAD
                 const baseURL = process.env.BASE_URL || "http://localhost:3000" 
 
                 // Authorization Setup for /api/license endpoint
@@ -94,21 +93,13 @@ const webhookHandler = async (req, res) => {
                 const timestamp = Date.now();
                 const payload = `${timestamp}`
                 const signature = crypto.createHmac("sha256", secretKey).update(payload).digest("hex");
-
-
-=======
-                const baseURL = process.env.BASE_URL || "http://localhost:3000"
->>>>>>> 98d3314ba1d3c838cca4b47f34fb2622ffbff43b
                 
                 const licenseResponse = await fetch(`${baseURL}/api/license`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-<<<<<<< HEAD
                         "x-signature": signature,
                         "x-timestamp": timestamp,
-=======
->>>>>>> 98d3314ba1d3c838cca4b47f34fb2622ffbff43b
                     },
                     body: JSON.stringify({email: Order.email}),
                 });
